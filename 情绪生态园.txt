@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>情绪盲盒 · 喝水星灵 | 星云生态园</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(ellipse at 30% 20%, #0a0f2a, #01030c);
+            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', system-ui, 'Poppins', sans-serif;
+            padding: 20px;
+        }
+
+        .glass-container {
+            max-width: 580px;
+            margin: 0 auto;
+            background: rgba(8, 14, 30, 0.65);
+            backdrop-filter: blur(14px);
+            border-radius: 64px;
+            padding: 20px 20px 32px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(130, 170, 255, 0.35);
+            transition: all 0.2s;
+        }
+
+        /* 星云核心区 */
+        .nebula-core {
+            background: radial-gradient(ellipse at 40% 50%, #121c49, #020617);
+            border-radius: 56px;
+            padding: 18px;
+            margin-bottom: 24px;
+            box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.7), 0 12px 24px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 150, 255, 0.5);
+        }
+
+        .monster-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .monster-card {
+            background: rgba(28, 40, 85, 0.5);
+            border-radius: 120px;
+            padding: 12px 28px;
+            backdrop-filter: blur(8px);
+        }
+
+        #monsterAvatar {
+            font-size: 110px;
+            text-align: center;
+            filter: drop-shadow(0 0 18px #7aa2ff);
+            transition: transform 0.25s cubic-bezier(0.34, 1.2, 0.8, 1);
+        }
+
+        .eating-animation {
+            transform: scale(1.22);
+            filter: drop-shadow(0 0 28px #ffb45e);
+        }
+
+        .monster-name {
+            font-size: 1.55rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e6deff, #9bb6ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .evolution-status {
+            background: #192151aa;
+            border-radius: 60px;
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        /* 转化物花园 */
+        .garden-panel {
+            margin-top: 18px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 42px;
+            padding: 12px 16px;
+        }
+        .flex-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.75rem;
+            color: #bdd4ff;
+            margin-bottom: 10px;
+        }
+        .deco-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 65px;
+        }
+        .deco-badge {
+            background: rgba(255, 248, 225, 0.12);
+            backdrop-filter: blur(6px);
+            border-radius: 60px;
+            padding: 5px 14px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(200, 180, 255, 0.5);
+            animation: gentleFloat 2s infinite ease;
+        }
+        @keyframes gentleFloat {
+            0% { transform: translateY(0px); opacity: 0.9;}
+            100% { transform: translateY(-2px); opacity: 1;}
+        }
+
+        /* 情绪矩阵 (正负情绪混合) */
+        .emotion-universe {
+            margin: 22px 0;
+        }
+        .emotion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .emotion-chip {
+            background: rgba(20, 35, 75, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 56px;
+            padding: 10px 4px;
+            text-align: center;
+            border: 1px solid rgba(130, 170, 255, 0.5);
+            cursor: grab;
+            transition: 0.1s;
+        }
+        .emotion-chip:active { cursor: grabbing; background: #2e407e; }
+        .emoji-lg { font-size: 32px; }
+        .emotion-label { font-size: 0.7rem; font-weight: 500; margin-top: 4px; }
+        .feed-count {
+            font-size: 0.6rem;
+            background: #00000066;
+            border-radius: 30px;
+            padding: 2px 8px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .drag-hint {
+            font-size: 0.65rem;
+            text-align: center;
+            margin-top: 12px;
+            opacity: 0.7;
+        }
+
+        /* 高级盲盒任务区 */
+        .blindbox-luxury {
+            background: linear-gradient(125deg, #121b3e, #070e28);
+            border-radius: 48px;
+            padding: 20px;
+            margin: 18px 0;
+            border: 1px solid #6c82e060;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5);
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+        .task-card {
+            background: #03071f;
+            border-radius: 36px;
+            padding: 16px;
+            border-left: 5px solid #f9bc6d;
+            line-height: 1.4;
+        }
+        .task-action-btn {
+            background: #6a89ff;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            margin-top: 16px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .task-action-btn:active { transform: scale(0.96); background: #4c6be0; }
+
+        /* 收藏馆 + 喝水进度特殊展示 */
+        .collection-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 38px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .quotes-masonry {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .quote-item {
+            background: #262e5a;
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-style: italic;
+        }
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #050b1f70;
+            border-radius: 32px;
+            padding: 10px 14px;
+            margin-top: 14px;
+            font-size: 0.7rem;
+        }
+        .toast-magic {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f294bdd;
+            backdrop-filter: blur(14px);
+            border-radius: 60px;
+            padding: 8px 22px;
+            color: #ffefcf;
+            font-weight: 500;
+            pointer-events: none;
+            z-index: 1000;
+            transition: 0.2s;
+            opacity: 0;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div class="glass-container">
+    <!-- 星灵区域 -->
+    <div class="nebula-core">
+        <div class="monster-zone" id="monsterDropZone">
+            <div class="monster-card">
+                <div id="monsterAvatar">🌀✨</div>
+                <div class="monster-name">星灵 · 柔水云</div>
+                <div class="evolution-status" id="evolutionDesc">✨ 情绪共生 · 渴望陪伴 ✨</div>
+            </div>
+        </div>
+        <div class="garden-panel">
+            <div class="flex-header"><span>🌱 转化物花园 · 盲盒奖励</span><span id="gardenTotal">0</span></div>
+            <div class="deco-wrapper" id="gardenList"></div>
+        </div>
+    </div>
+
+    <!-- 情绪星球 正负情绪混合 (至少8种) -->
+    <div class="emotion-universe">
+        <div class="flex-header"><span>🌌 情绪星尘 · 拖拽投喂</span><span>长按并拖到星灵身上</span></div>
+        <div class="emotion-grid" id="emotionGrid"></div>
+        <div class="drag-hint">💫 每一个情绪都值得被看见 → 星灵会吃掉它并开启转化盲盒</div>
+    </div>
+
+    <!-- 盲盒任务区 -->
+    <div class="blindbox-luxury" id="blindboxArea">
+        <div class="task-header"><span>🎁 转化盲盒 · 星灵馈赠</span><span id="taskTypeLabel">✨ 治愈任务</span></div>
+        <div class="task-card" id="taskContentDisplay">✨ 投喂任意情绪，开启专属盲盒 ✨</div>
+        <button class="task-action-btn" id="completeMissionBtn">🌟 完成 & 凝结宝物 🌟</button>
+    </div>
+
+    <!-- 星光收藏馆 + 喝水记录特别模块 -->
+    <div class="collection-area">
+        <div class="flex-header"><span>📖 星光收藏馆 · 灵感碎片</span><span>💧 水之印记</span></div>
+        <div class="quotes-masonry" id="collectionList"></div>
+    </div>
+    <div class="stats-bar">
+        <span>✨ 情绪喂养总数: <strong id="totalFeedStat">0</strong></span>
+        <span>💧 今日喝水净化: <strong id="waterCountStat">0</strong> 次</span>
+        <span>🎴 星灵进化值: <span id="evolutionMeter">初生</span></span>
+    </div>
+</div>
+<div id="toastMessage" class="toast-magic">✨ 情绪被接住了 ✨</div>
+
+<script>
+    // ======================= 情绪库 (正向+负向混合，体现情绪多变) ======================
+    const EMOTIONS_SET = [
+        { id: "joy", name: "喜悦", emoji: "🌸", color: "#f7cf7c", type: "positive" },
+        { id: "calm", name: "平静", emoji: "🌙", color: "#95cdff", type: "positive" },
+        { id: "gratitude", name: "感激", emoji: "🍃", color: "#afe2a0", type: "positive" },
+        { id: "hope", name: "希望", emoji: "🌟", color: "#ffdd99", type: "positive" },
+        { id: "anxiety", name: "焦虑", emoji: "🌪️", color: "#ffaa77", type: "negative" },
+        { id: "sadness", name: "悲伤", emoji: "💧", color: "#88aaff", type: "negative" },
+        { id: "tired", name: "疲惫", emoji: "🌀", color: "#b3a7d0", type: "negative" },
+        { id: "lonely", name: "孤独", emoji: "🌙", color: "#c0a3e0", type: "negative" },
+        { id: "anger", name: "烦躁", emoji: "🔥", color: "#ff8866", type: "negative" }
+    ];  // 9种情绪 正向4种 + 负向5种 符合多变需求
+
+    // ---------- 任务盲盒库 (喝水任务占比提升，结合情绪与治愈、灵感) ----------
+    const BLIND_BOX_QUESTS = [
+        { type: "task", text: "💧 喝一口温热的水，感受它在身体里流动，如星灵的光泽", actionHint: "hydration", value: "water" },
+        { type: "task", text: "🥛 慢慢喝完半杯水，对自己说：“我在滋养这片星云”", actionHint: "hydration", value: "water" },
+        { type: "task", text: "🚰 喝三口水，每次吞咽都给星灵一个微笑", actionHint: "hydration", value: "water" },
+        { type: "task", text: "🌬️ 闭上眼睛深呼吸5次，想象焦虑化为轻雾散入夜空", actionHint: "breath" },
+        { type: "task", text: "👁️ 环顾四周，找出三件蓝色的事物，觉察平静", actionHint: "mindful" },
+        { type: "task", text: "🎵 轻哼一段旋律或者听一首歌，让情绪流动", actionHint: "music" },
+        { type: "task", text: "🤲 双手心轻轻摩擦，感受掌心的温度，轻抚脸颊", actionHint: "selfcare" },
+        { type: "task", text: "🍵 喝一杯温水，并说出一件你今天感激的小事", actionHint: "hydration", value: "water" },
+        { type: "inspire", text: "✨ 情绪是灵魂的天气，允许它阴晴不定，你依然闪耀", actionHint: "quote" },
+        { type: "inspire", text: "🌿 悲伤之后会有宁静，就像雨天过后星光更清澈", actionHint: "quote" },
+        { type: "inspire", text: "💫 焦虑是心灵的信使，它提醒你内心深处理想的模样", actionHint: "quote" },
+        { type: "inspire", text: "🌊 喜悦如水波，会在接纳一切情绪后自然泛起", actionHint: "quote" },
+        { type: "task", text: "📝 写下此刻最强烈的情绪，给它取一个颜色", actionHint: "journal" },
+        { type: "task", text: "💧 饮一口水，感受喉咙的滋润，喝完后摸摸星灵", actionHint: "hydration", value: "water" }
+    ];
+
+    // 转化物图鉴
+    const DECORATIONS = ["💧 水珠星尘", "🌿 安宁叶片", "⭐ 流光琥珀", "🌸 治愈花苞", "🌙 月华水滴", "🍃 风之絮语", "🪶 柔羽轻抚", "💎 情绪结晶"];
+
+    // 全局数据
+    let emotionStats = {
+        joy:0, calm:0, gratitude:0, hope:0,
+        anxiety:0, sadness:0, tired:0, lonely:0, anger:0
+    };
+    let gardenItems = ["✨ 初始星屑"];
+    let collectedQuotesList = ["⭐ 情绪多变，正是星光斑斓的理由"];
+    let currentBlindTask = null;
+    let missionPending = false;
+    let totalFeedsCount = 0;
+    let waterCompletedCount = 0;      // 完成喝水任务次数(记录特殊奖励)
+
+    // DOM 元素
+    const monsterAvatarDiv = document.getElementById("monsterAvatar");
+    const evolutionDescSpan = document.getElementById("evolutionDesc");
+    const gardenListDiv = document.getElementById("gardenList");
+    const collectionListDiv = document.getElementById("collectionList");
+    const taskContentDiv = document.getElementById("taskContentDisplay");
+    const taskTypeSpan = document.getElementById("taskTypeLabel");
+    const completeBtn = document.getElementById("completeMissionBtn");
+    const totalFeedSpan = document.getElementById("totalFeedStat");
+    const waterCountSpan = document.getElementById("waterCountStat");
+    const evolutionMeterSpan = document.getElementById("evolutionMeter");
+    const gardenTotalSpan = document.getElementById("gardenTotal");
+
+    // Toast 通知
+    function showToast(msg, duration = 2000) {
+        const toast = document.getElementById("toastMessage");
+        toast.innerText = msg;
+        toast.style.opacity = "1";
+        setTimeout(() => toast.style.opacity = "0", duration);
+    }
+
+    // 更新怪兽进化 & 外貌 (基于情绪占比，体现情绪多变影响)
+    function updateMonsterEvolution() {
+        const total = Object.values(emotionStats).reduce((a,b)=>a+b,0);
+        if(total === 0) {
+            monsterAvatarDiv.innerHTML = "🌀✨";
+            evolutionDescSpan.innerHTML = "💧 初生水灵 · 等待情绪投喂";
+            evolutionMeterSpan.innerText = "新生星尘";
+            return;
+        }
+        // 计算正向与负向比例
+        let positiveSum = emotionStats.joy + emotionStats.calm + emotionStats.gratitude + emotionStats.hope;
+        let negativeSum = emotionStats.anxiety + emotionStats.sadness + emotionStats.tired + emotionStats.lonely + emotionStats.anger;
+        let waterBonus = waterCompletedCount;
+        let evolutionText = "";
+        let avatarFace = "";
+        if(positiveSum > negativeSum && positiveSum >= 5) {
+            avatarFace = "🌸✨⭐";
+            evolutionText = "🌿 光之花灵 · 喜悦光辉 🌿";
+            evolutionMeterSpan.innerText = "光愈形态";
+        } else if(negativeSum > positiveSum && negativeSum >= 5) {
+            avatarFace = "🌧️🌀🌙";
+            evolutionText = "🌫️ 雾隐守护者 · 深沉的慰藉 🌫️";
+            evolutionMeterSpan.innerText = "暗雾形态";
+        } else if(waterBonus >= 5) {
+            avatarFace = "💧🌀💙";
+            evolutionText = "💙 水之圣灵 · 流动的治愈之环 💙";
+            evolutionMeterSpan.innerText = "净水形态";
+        } else if(total >= 8) {
+            avatarFace = "✨🌀⚡";
+            evolutionText = "⭐ 星穹之灵 · 情绪融汇成光 ⭐";
+            evolutionMeterSpan.innerText = "星穹形态";
+        } else {
+            avatarFace = "🌀✨💧";
+            evolutionText = "✨ 云水灵体 · 吸收多变的情绪 ✨";
+            evolutionMeterSpan.innerText = "灵云期";
+        }
+        monsterAvatarDiv.innerHTML = avatarFace;
+        evolutionDescSpan.innerHTML = evolutionText;
+    }
+
+    // 更新花园展示
+    function renderGarden() {
+        gardenListDiv.innerHTML = gardenItems.map(item => `<div class="deco-badge">${item}</div>`).join("");
+        gardenTotalSpan.innerText = gardenItems.length;
+    }
+    // 更新收藏馆
+    function renderCollection() {
+        collectionListDiv.innerHTML = collectedQuotesList.map(q => `<div class="quote-item">📖 ${q}</div>`).join("");
+    }
+
+    // 添加转化物 & 收藏内容
+    function addTaskReward(taskObj) {
+        // 随机转化物
+        const newDeco = DECORATIONS[Math.floor(Math.random() * DECORATIONS.length)];
+        gardenItems.unshift(newDeco);
+        if(gardenItems.length > 12) gardenItems.pop();
+        renderGarden();
+        // 收藏文本 (灵感或任务核心句)
+        let quoteText = taskObj.text.length > 48 ? taskObj.text.slice(0,45)+"…" : taskObj.text;
+        if(!collectedQuotesList.includes(quoteText)) {
+            collectedQuotesList.unshift(quoteText);
+            if(collectedQuotesList.length > 12) collectedQuotesList.pop();
+            renderCollection();
+        }
+        showToast(`🌼 获得转化物: ${newDeco} , 灵感收录星图`);
+    }
+
+    // 完成当前盲盒任务
+    function completeMission() {
+        if(!missionPending || !currentBlindTask) {
+            showToast("🌙 先投喂一种情绪星尘，开启盲盒再完成任务~");
+            return;
+        }
+        const task = currentBlindTask;
+        // 喝水任务统计
+        if(task.actionHint === "hydration" || (task.text.includes("喝") && task.text.includes("水"))) {
+            waterCompletedCount++;
+            waterCountSpan.innerText = waterCompletedCount;
+            showToast("💙 水之祝福 +1 · 星灵获得清澈能量");
+            // 额外特殊转化物：“水之心”
+            gardenItems.unshift("💧 水之心结晶");
+            if(gardenItems.length > 12) gardenItems.pop();
+            renderGarden();
+            // 附加收集一句“水之哲思”
+            let waterQuote = "💎 每一口水都是流动的星光，滋养身心";
+            if(!collectedQuotesList.includes(waterQuote)) {
+                collectedQuotesList.unshift(waterQuote);
+                renderCollection();
+            }
+        }
+        // 奖励转化物 & 收藏
+        addTaskReward(task);
+        // 怪兽进食动画
+        monsterAvatarDiv.classList.add("eating-animation");
+        setTimeout(() => monsterAvatarDiv.classList.remove("eating-animation"), 350);
+        // 重置任务状态
+        missionPending = false;
+        currentBlindTask = null;
+        taskContentDiv.innerHTML = "✨ 盲盒已完成！再次投喂情绪开启新的转化任务 ✨";
+        taskTypeSpan.innerHTML = "🎁 待投喂";
+        showToast("✔️ 任务完成，星云里开出了小花");
+        updateMonsterEvolution();
+
+        // 额外: 每完成3次喝水任务，解锁特殊收藏
+        if(waterCompletedCount > 0 && waterCompletedCount % 3 === 0) {
+            let special = "🌊 水是情绪的镜面，饮下它，回归宁静";
+            if(!collectedQuotesList.includes(special)) {
+                collectedQuotesList.unshift(special);
+                renderCollection();
+                showToast("✨ 解锁隐藏星光语录 ✨");
+            }
+        }
+    }
+
+    // 生成新的盲盒任务 (每次投喂后触发)
+    function generateNewBlindBox() {
+        const randomIndex = Math.floor(Math.random() * BLIND_BOX_QUESTS.length);
+        const newTask = { ...BLIND_BOX_QUESTS[randomIndex] };
+        currentBlindTask = newTask;
+        missionPending = true;
+        const typeIcon = newTask.type === "task" ? "🌿 治愈行动" : "💫 灵感碎片";
+        taskTypeSpan.innerHTML = typeIcon;
+        taskContentDiv.innerHTML = `<div>✨ ${newTask.text}</div><div style="font-size:0.7rem; margin-top:7px;">✨ 完成即可获得转化物+收藏碎片 ✨</div>`;
+    }
+
+    // 投喂情绪（核心）
+    function feedEmotion(emotionId) {
+        const emotion = EMOTIONS_SET.find(e => e.id === emotionId);
+        if(!emotion) return;
+        // 增加统计数据
+        if(emotionStats[emotionId] !== undefined) emotionStats[emotionId]++;
+        else emotionStats[emotionId] = 1;
+        totalFeedsCount++;
+        totalFeedSpan.innerText = totalFeedsCount;
+        
+        // 视觉效果
+        monsterAvatarDiv.classList.add("eating-animation");
+        setTimeout(() => monsterAvatarDiv.classList.remove("eating-animation"), 420);
+        showToast(`🌀 星灵吞下了「${emotion.name}」情绪 · 星云流转`);
+
+        // 更新进化 & 情绪计数显示
+        updateMonsterEvolution();
+        updateEmotionBadgesUI();
+
+        // 每次投喂后立刻生成全新的盲盒（转化机制）
+        generateNewBlindBox();
+
+        // 情绪多变的彩蛋：连续投喂不同情绪的时候，额外花园奖励
+        if(totalFeedsCount % 4 === 0) {
+            gardenItems.unshift("🎭 情绪万花筒");
+            if(gardenItems.length > 12) gardenItems.pop();
+            renderGarden();
+            showToast("🎨 情绪的多样性化为花园的奇彩");
+        }
+        // 如果同时积累了快乐+悲伤比较多，特殊藏品
+        if(emotionStats.joy >= 3 && emotionStats.sadness >= 3) {
+            let harmonyQuote = "🌼 喜悲交织，才是完整的星河";
+            if(!collectedQuotesList.includes(harmonyQuote)) {
+                collectedQuotesList.unshift(harmonyQuote);
+                renderCollection();
+            }
+        }
+    }
+
+    // 构建情绪卡片UI (正负情绪都展示)
+    function buildEmotionGrid() {
+        const container = document.getElementById("emotionGrid");
+        container.innerHTML = "";
+        EMOTIONS_SET.forEach(emo => {
+            const chip = document.createElement("div");
+            chip.className = "emotion-chip";
+            chip.setAttribute("data-emotion-id", emo.id);
+            chip.innerHTML = `
+                <div class="emoji-lg">${emo.emoji}</div>
+                <div class="emotion-label">${emo.name}</div>
+                <div class="feed-count" id="badge-${emo.id}">0</div>
+            `;
+            container.appendChild(chip);
+        });
+        attachDragEvents();
+        updateEmotionBadgesUI();
+    }
+
+    function updateEmotionBadgesUI() {
+        EMOTIONS_SET.forEach(emo => {
+            const badge = document.getElementById(`badge-${emo.id}`);
+            if(badge) badge.innerText = emotionStats[emo.id] || 0;
+        });
+    }
+
+    // 拖拽投喂系统 - 支持触摸与鼠标
+    let currentDraggingId = null;
+    let cloneElementDiv = null;
+
+    function attachDragEvents() {
+        const chips = document.querySelectorAll(".emotion-chip");
+        const monsterZone = document.getElementById("monsterDropZone");
+
+        const onPointerMoveHandler = (e) => {
+            if (!cloneElementDiv) return;
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            cloneElementDiv.style.left = `${clientX - 32}px`;
+            cloneElementDiv.style.top = `${clientY - 32}px`;
+        };
+
+        const onPointerUpHandler = (e) => {
+            if (!currentDraggingId) {
+                cleanupDrag();
+                return;
+            }
+            let upX = e.clientX, upY = e.clientY;
+            if (e.changedTouches) {
+                upX = e.changedTouches[0].clientX;
+                upY = e.changedTouches[0].clientY;
+            }
+            const rect = monsterZone.getBoundingClientRect();
+            const isInside = (upX >= rect.left && upX <= rect.right && upY >= rect.top && upY <= rect.bottom);
+            if (isInside && currentDraggingId) {
+                feedEmotion(currentDraggingId);
+            } else {
+                if(currentDraggingId) showToast("✨ 将情绪拖到星灵身上，它会帮你转化", 1200);
+            }
+            cleanupDrag();
+        };
+
+        function cleanupDrag() {
+            if(cloneElementDiv && cloneElementDiv.remove) cloneElementDiv.remove();
+            cloneElementDiv = null;
+            document.removeEventListener("pointermove", onPointerMoveHandler);
+            document.removeEventListener("pointerup", onPointerUpHandler);
+            document.removeEventListener("touchmove", onPointerMoveHandler);
+            document.removeEventListener("touchend", onPointerUpHandler);
+            currentDraggingId = null;
+        }
+
+        chips.forEach(chip => {
+            const emotionId = chip.getAttribute("data-emotion-id");
+            const startDrag = (e) => {
+                e.preventDefault();
+                if(currentDraggingId) return;
+                currentDraggingId = emotionId;
+                const emotion = EMOTIONS_SET.find(em => em.id === emotionId);
+                cloneElementDiv = document.createElement("div");
+                cloneElementDiv.innerText = emotion?.emoji || "🌑";
+                cloneElementDiv.style.position = "fixed";
+                cloneElementDiv.style.width = "58px";
+                cloneElementDiv.style.height = "58px";
+                cloneElementDiv.style.borderRadius = "50%";
+                cloneElementDiv.style.background = `radial-gradient(circle at 30% 30%, ${emotion?.color || "#c8b0ff"}, #331e77)`;
+                cloneElementDiv.style.display = "flex";
+                cloneElementDiv.style.alignItems = "center";
+                cloneElementDiv.style.justifyContent = "center";
+                cloneElementDiv.style.fontSize = "34px";
+                cloneElementDiv.style.boxShadow = "0 0 28px rgba(255,215,120,0.8)";
+                cloneElementDiv.style.zIndex = "9999";
+                cloneElementDiv.style.pointerEvents = "none";
+                cloneElementDiv.style.backdropFilter = "blur(5px)";
+                let startX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+                let startY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+                cloneElementDiv.style.left = `${startX - 29}px`;
+                cloneElementDiv.style.top = `${startY - 29}px`;
+                document.body.appendChild(cloneElementDiv);
+                document.addEventListener("pointermove", onPointerMoveHandler);
+                document.addEventListener("pointerup", onPointerUpHandler);
+                document.addEventListener("touchmove", onPointerMoveHandler, { passive: false });
+                document.addEventListener("touchend", onPointerUpHandler);
+            };
+            chip.addEventListener("pointerdown", startDrag);
+            chip.addEventListener("touchstart", startDrag, { passive: false });
+        });
+    }
+
+    // 自动保存游戏进度 (LocalStorage)
+    function saveGameSnapshot() {
+        const saveData = {
+            emotionStats, gardenItems, collectedQuotesList, totalFeedsCount, waterCompletedCount
+        };
+        localStorage.setItem("StarlightEco", JSON.stringify(saveData));
+    }
+
+    function loadGameSnapshot() {
+        const raw = localStorage.getItem("StarlightEco");
+        if (raw) {
+            try {
+                const data = JSON.parse(raw);
+                emotionStats = data.emotionStats || emotionStats;
+                gardenItems = data.gardenItems || gardenItems;
+                collectedQuotesList = data.collectedQuotesList || collectedQuotesList;
+                totalFeedsCount = data.totalFeedsCount || 0;
+                waterCompletedCount = data.waterCompletedCount || 0;
+                totalFeedSpan.innerText = totalFeedsCount;
+                waterCountSpan.innerText = waterCompletedCount;
+                updateMonsterEvolution();
+                renderGarden();
+                renderCollection();
+                updateEmotionBadgesUI();
+            } catch(e) { console.warn(e); }
+        }
+        if(gardenItems.length === 0) gardenItems = ["✨ 初始星屑"];
+        if(collectedQuotesList.length === 0) collectedQuotesList = ["⭐ 情绪多变，星灵永伴"];
+        renderGarden(); renderCollection();
+    }
+
+    // 自动保存间隔
+    setInterval(() => saveGameSnapshot(), 12000);
+    window.addEventListener("beforeunload", () => saveGameSnapshot());
+
+    // 绑定完成按钮事件
+    completeBtn.addEventListener("click", completeMission);
+
+    // 启动应用
+    function init() {
+        loadGameSnapshot();
+        buildEmotionGrid();
+        updateMonsterEvolution();
+        // 初始盲盒占位
+        currentBlindTask = null;
+        missionPending = false;
+        taskContentDiv.innerHTML = "✨ 拖拽情绪星尘给星灵，它会开启转化盲盒 ✨";
+        taskTypeSpan.innerHTML = "🎁 等待情绪投喂";
+    }
+    init();
+</script>
+</body>
+</html>
